@@ -8,6 +8,15 @@ class Controller:
         # the model, which implements the logic of the program and holds the data
         self._model = model
 
+    def fillDDYears(self):
+        anni = self._model.getAnni()
+
+        opzioniDD = list(map(lambda x: ft.dropdown.Option(x), anni))
+        self._view._ddYear1.options = opzioniDD
+        self._view._ddYear2.options = opzioniDD
+
+        self._view.update_page()
+
     def handleBuildGraph(self, e):
         pass
 
