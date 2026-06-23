@@ -20,4 +20,4 @@ class Circuit:
         return self.circuitId == other.circuitId
 
     def __str__(self):
-        return self.name
+        return f'{self.name} - '

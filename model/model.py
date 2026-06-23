@@ -69,7 +69,17 @@ class Model:
 
         return peso
 
-
-
     def getInfo(self):
         return len(self._grafo.nodes()), len(self._grafo.edges())
+
+    def getCompConn(self):
+        comp = max(nx.connected_components(self._grafo), key=len)
+
+        res = []
+        for n in comp:
+            incidenti = self._grafo.edges(n, data=True)
+            peso = max([peso['weight'] for u,v, peso in incidenti])
+            res.append((n, peso))
+
+        res.sort(key=lambda x:x[1], reverse=True)
+        return res
