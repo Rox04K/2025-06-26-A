@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -9,6 +11,9 @@ class Model:
     def __init__(self):
         self._grafo = nx.Graph()
         self._IDMap = {}
+
+        self._bestImprevedibilita = 0
+        self._bestSottogara = []
 
     def getAnni(self):
         return DAO.getAllYears()
@@ -83,3 +88,51 @@ class Model:
 
         res.sort(key=lambda x:x[1], reverse=True)
         return res
+
+    def hasGraph(self):
+        return len(self._grafo.nodes())>0
+
+    def getCampionato(self, k, m, lista):
+        self._bestImprevedibilita = 0
+        self._bestSottogara = []
+
+        for l in range(len(lista)-1):
+            c = lista[l][0]
+            numGare = len(c.piazzamenti)
+            if numGare > m:
+                parziale = [c]
+                self._ricorsione(parziale, lista, l+1, k, m)
+
+        return self._bestSottogara, self._bestImprevedibilita
+
+    def _ricorsione(self, parziale, lista, livello, k, m):
+        if len(parziale) == k:
+            impre = self._calcolaImpr(parziale)
+            if impre > self._bestImprevedibilita:
+                self._bestImprevedibilita = impre
+                self._bestSottogara = copy.deepcopy(parziale)
+            return
+
+        if livello == len(lista):
+            return
+
+        attuale = lista[livello][0]
+        numGare = len(attuale.piazzamenti)
+        if numGare > m:
+            parziale.append(attuale)
+            self._ricorsione(parziale, lista, livello + 1, k, m)
+            parziale.pop()
+
+        self._ricorsione(parziale, lista, livello + 1, k, m)
+
+    def _calcolaImpr(self, parziale):
+        i = 0
+
+        for p in parziale:
+            nP = self._calcolaPeso(p)
+            tot = sum(len(v) for k,v in p.piazzamenti.items())
+
+            impr = 1-(nP/tot)
+            i += impr
+
+        return impr
